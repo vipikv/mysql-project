@@ -183,3 +183,49 @@ SELECT book_title,category FROM books WHERE category = 'history';
 -- 10.Retrieve the branch numbers along with the count of employees for branches having more than 5 employees
 
 SELECT branch_no,COUNT(*) AS employee_no FROM employee GROUP BY branch_no HAVING COUNT(*) > 5;
+
+-- 11. Function to get a book by its isbn
+DELIMITER $
+CREATE FUNCTION getbook(isbn1 INT)
+RETURNS VARCHAR(50)
+DETERMINISTIC
+BEGIN
+RETURN (SELECT book_title FROM books WHERE isbn = isbn1);
+END $
+DELIMITER ;
+
+SELECT getbook(23456788);
+
+-- 12. function to get books by its issue_date
+DELIMITER $
+CREATE FUNCTION getIssuedBook(idate DATE)
+RETURNS VARCHAR(50)
+DETERMINISTIC
+BEGIN
+RETURN (SELECT book_title FROM books WHERE isbn = (SELECT isbn_book FROM issueStatus WHERE issue_date = idate));
+END $
+DELIMITER ;
+
+SELECT getIssuedBook('2024-04-03'); 
+
+-- 13.get total books in liabrary
+DELIMITER $
+CREATE PROCEDURE total_books(OUT total_books INT)
+BEGIN
+SELECT COUNT(*) into total_books FROM books;
+END $
+DELIMITER ;
+
+call total_books(@result);
+SELECT @result;
+
+-- 14 add new customer
+DELIMITER $
+CREATE PROCEDURE add_newcust(IN customer_id INT,IN customer_name VARCHAR(25),IN customer_address VARCHAR(25),IN reg_date DATE)
+BEGIN
+INSERT INTO customer value(customer_id,customer_name,customer_address,reg_date);
+END $
+DELIMITER ;
+
+CALL add_newcust(11,'Deepak', '11 Edapalli,Kochi',CURDATE());
+SELECT * FROM customer;
